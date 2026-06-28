@@ -1,0 +1,57 @@
+# ============================================================================
+# SALES ANALYTICS: dlt + MotherDuck + dbt + Lightdash
+# ============================================================================
+# Core data ingestion & warehouse
+dlt[duckdb]>=1.27.2          # Data load tool with DuckDB destination
+motherduck>=0.5.4            # MotherDuck cloud DuckDB driver
+
+# dbt Core & adapter for DuckDB/MotherDuck transformation
+dbt-core>=1.8.0              # dbt transformation framework (required >= 1.8 for Lightdash)
+dbt-duckdb>=1.8.0            # DuckDB adapter for dbt (includes MotherDuck support)
+
+# Data generation & utilities
+faker>=25.0.0                # Synthetic data generation for demo
+Faker>=25.0.0                # Alternative import for Faker library
+
+# dlt-plus: dbt generator from dlt schemas
+# NOTE: dlt-plus is separate from open-source dlt
+# Install separately after dlt: pip install dlt-plus
+# This enables: dlthub dbt init/generate commands
+# COMMENTED OUT: Uncomment when ready to use dbt generator
+# dlt-plus>=0.5.0
+
+# ============================================================================
+# OPTIONAL: For local development and notebook exploration
+# ============================================================================
+# jupyter>=1.0.0               # Jupyter notebooks for exploration
+# pandas>=2.0.0                # Data manipulation & analysis
+# duckdb>=1.0.0                # Direct DuckDB access (if needed alongside dlt)
+# rich>=13.0.0                 # Pretty console output
+
+# ============================================================================
+# INSTALLATION NOTES
+# ============================================================================
+# 1. Base install (core data stack):
+#    pip install -r requirements.txt
+#
+# 2. Add dlt-plus for dbt generator (after base install):
+#    pip install dlt-plus
+#    Then run: dlthub dbt init webinar_demo_pipeline --destination motherduck
+#
+# 3. Run pipeline with MotherDuck token:
+#    export MOTHERDUCK_TOKEN="your_token_here"
+#    python pipeline.py
+#
+# 4. Generate dbt models:
+#    dlthub dbt generate webinar_demo_pipeline --fact orders
+#
+# 5. Run dbt transformations:
+#    cd dbt_project
+#    dbt deps
+#    dbt run
+#    dbt test
+#
+# 6. Connect Lightdash:
+#    - Point to: webinar_demo database, transformed schema
+#    - Use ~/.dbt/profiles.yml for authentication
+# ============================================================================

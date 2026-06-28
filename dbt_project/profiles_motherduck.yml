@@ -1,0 +1,72 @@
+# ============================================================================
+# dbt Profiles Configuration for MotherDuck + DuckDB
+# ============================================================================
+#
+# Location: ~/.dbt/profiles.yml
+#
+# This profile connects dbt to MotherDuck (cloud DuckDB).
+# Copy this file to ~/.dbt/profiles.yml before running dbt.
+#
+# Configuration:
+retail_analytics:
+  target: prod
+  outputs:
+    prod:
+      type: duckdb
+      path: "md:retail_analytics?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      schema: transformed
+      threads: 4
+      extensions:
+        - motherduck
+    dev:
+      type: duckdb
+      path: "md:retail_analytics?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      schema: transformed_dev
+      threads: 1
+      extensions:
+        - motherduck
+
+
+# ============================================================================
+# SETUP INSTRUCTIONS
+# ============================================================================
+#
+# 1. Copy this file to ~/.dbt/profiles.yml:
+#    cp ~/.dbt/profiles.yml ~/.dbt/profiles.yml.backup  # (backup existing)
+#    cp dbt_profiles_motherduck.yml ~/.dbt/profiles.yml
+#
+# 2. Set MotherDuck token environment variable:
+#    export MOTHERDUCK_TOKEN="your_motherduck_token_here"
+#
+# 3. Verify dbt connection:
+#    dbt debug
+#    # Should show: ✓ Connection test succeeded
+#
+# 4. Run dbt:
+#    dbt deps
+#    dbt run
+#    dbt test
+#
+# 5. Verify models in MotherDuck:
+#    SELECT table_name FROM information_schema.tables
+#    WHERE table_schema = 'transformed'
+#    -- Should show: fact_orders, dim_customers, dim_products, stg_*
+#
+# ============================================================================
+#
+# TROUBLESHOOTING
+#
+# Issue: "motherduck_token is not set"
+#   → Ensure MOTHERDUCK_TOKEN env var is exported before running dbt
+#   → Run: echo $MOTHERDUCK_TOKEN (should not be empty)
+#
+# Issue: "Failed to establish a connection"
+#   → Verify MotherDuck token is valid
+#   → Check internet connectivity
+#   → Run: dbt debug --show-logs
+#
+# Issue: Models write to wrong schema
+#   → Verify schema: "transformed" is set in profiles.yml
+#   → Check dbt_project.yml for schema overrides
+#
+# ============================================================================

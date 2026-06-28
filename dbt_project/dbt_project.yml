@@ -1,0 +1,65 @@
+# Name and version of your project
+name: 'retail_analytics_dbt'
+version: '1.0.0'
+config-version: 2
+
+# Project metadata
+profile: 'retail_analytics'
+
+# Directories
+model-paths: ["models"]
+macro-paths: ["macros"]
+seed-paths: ["data"]
+test-paths: ["tests"]
+analysis-paths: ["analysis"]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Required dbt version (>= 1.8 for Lightdash compatibility)
+require-dbt-version: [">=1.8.0", "<2.0.0"]
+
+# dbt-duckdb specific config
+dispatch:
+  - macro_namespace: dbt
+    search_order: ['dbt_duckdb', 'dbt']
+
+# Models configuration
+models:
+  retail_analytics_dbt:
+    # Staging layer - cleans raw dlt tables, applies incremental logic
+    staging:
+      +materialized: table
+      +schema: transformed
+      
+    # Marts layer - fact and dimension tables for BI
+    marts:
+      +materialized: table
+      +schema: transformed
+
+# Lightdash integration
+# Uncomment once dbt project is synced to GitHub
+# lightdash:
+#   project_type: dbt_local
+
+# ============================================================================
+# NOTES FOR WEBINAR SETUP
+# ============================================================================
+# 1. Profile "webinar_demo" must be configured in ~/.dbt/profiles.yml
+#    Profiles connect dbt to MotherDuck warehouse
+#
+# 2. All models use materialized: table (not view)
+#    This is required for Lightdash performance and metric caching
+#
+# 3. Schema is "transformed" for all models
+#    Raw dlt tables stay in "raw" schema
+#
+# 4. After first dbt run, models will appear in:
+#    - MotherDuck: webinar_demo.transformed.fact_orders, dim_customers, etc.
+#
+# 5. For Lightdash connection in Cloud:
+#    - Use dbt Cloud integration (recommended)
+#    - OR upload dbt project to GitHub + connect via dbt CLI
+#    - Schema.yml (with meta blocks) is automatically discovered
+# ============================================================================

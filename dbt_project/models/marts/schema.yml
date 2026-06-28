@@ -1,0 +1,357 @@
+version: 2
+
+
+
+# ============================================================================
+# MODELS: Fact + Dimension tables for Lightdash
+# ============================================================================
+models:
+  # ===========================================================================
+  # FACT TABLE: Orders (primary table for BI dashboards)
+  # ===========================================================================
+  - name: fact_orders
+    description: |
+      Order fact table: One row per order.
+      
+      Joins customer and product dimensions to enable dimensional analysis.
+      Includes calculated revenue metric (quantity * product_price).
+      
+      Used for:
+      - Revenue analysis
+      - Order trend analysis  
+      - Customer segmentation
+      - Product performance
+      
+      PRIMARY TABLE FOR LIGHTDASH DASHBOARDS
+
+    meta:
+      label: Orders
+      lightdash:
+        description: Core e-commerce orders fact table
+
+    columns:
+      # Dimension: Order ID
+      - name: order_id
+        description: Unique order identifier (primary key)
+        data_tests:
+          - unique
+          - not_null
+        meta:
+          dimension:
+            type: string
+            label: Order ID
+            primary_key: true
+
+      # Dimension: Order Date (Time interval dimension)
+      - name: order_date
+        description: Date order was placed
+        meta:
+          dimension:
+            type: date
+            label: Order Date
+            time_intervals: ['DAY', 'WEEK', 'MONTH', 'QUARTER', 'YEAR']
+          metrics:
+            orders_last_7_days:
+              type: count_distinct
+              label: Orders Last 7 Days
+              filter: "order_date >= current_date - interval '7 day'"
+
+      # Dimension: Order Status
+      - name: status
+        description: Order status (pending, shipped, delivered, cancelled)
+        meta:
+          dimension:
+            type: string
+            label: Order Status
+            label_values:
+              - value: pending
+                label: 🟡 Pending
+              - value: shipped
+                label: 📦 Shipped
+              - value: delivered
+                label: ✅ Delivered
+              - value: cancelled
+                label: ❌ Cancelled
+
+      # Dimension: Quantity (also used in metrics)
+      - name: quantity
+        description: Number of units ordered
+        meta:
+          dimension:
+            type: number
+            label: Quantity
+          metrics:
+            total_quantity:
+              type: sum
+              label: Total Quantity Sold
+              round: 0
+            avg_quantity_per_order:
+              type: average
+              label: Avg Quantity per Order
+              round: 2
+            max_quantity_per_order:
+              type: max
+              label: Max Quantity in Single Order
+
+      # Dimension: Revenue (hidden, used only for metrics)
+      - name: revenue
+        description: Calculated revenue = quantity × product_price
+        meta:
+          dimension:
+            type: number
+            label: Revenue
+            hidden: true
+          metrics:
+            total_revenue:
+              type: sum
+              label: Total Revenue
+              round: 2
+              format: "£#,##0.00"
+              description: "Sum of all order revenues (quantity × price)"
+            avg_order_value:
+              type: average
+              label: Average Order Value
+              round: 2
+              format: "£#,##0.00"
+              description: "Mean revenue per order"
+            median_order_value:
+              type: median
+              label: Median Order Value
+              round: 2
+              format: "£#,##0.00"
+            min_order_value:
+              type: min
+              label: Minimum Order Value
+              format: "£#,##0.00"
+            max_order_value:
+              type: max
+              label: Maximum Order Value
+              format: "£#,##0.00"
+
+      # Dimension: Customer Fields (denormalized from dim_customers)
+      - name: customer_id
+        description: Foreign key to dim_customers
+        meta:
+          dimension:
+            type: string
+            label: Customer ID
+          metrics:
+            total_orders:
+              type: count_distinct
+              label: Total Orders
+              description: "Distinct count of unique orders"
+            distinct_customers:
+              type: count_distinct
+              label: Distinct Customers
+              description: "Unique customers who placed orders"
+
+      - name: customer_name
+        description: Customer name
+        meta:
+          dimension:
+            type: string
+            label: Customer Name
+
+      - name: customer_country
+        description: Customer country (denormalized from dim_customers)
+        meta:
+          dimension:
+            type: string
+            label: Customer Country
+            hidden: false
+
+      - name: customer_email
+        description: Customer email address
+        meta:
+          dimension:
+            type: string
+            label: Customer Email
+            hidden: true
+
+      - name: signup_date
+        description: Customer signup date
+        meta:
+          dimension:
+            type: date
+            label: Customer Signup Date
+            time_intervals: ['MONTH', 'QUARTER', 'YEAR']
+            hidden: false
+
+      # Dimension: Product Fields (denormalized from dim_products)
+      - name: product_id
+        description: Foreign key to dim_products
+        meta:
+          dimension:
+            type: string
+            label: Product ID
+
+      - name: product_name
+        description: Product name
+        meta:
+          dimension:
+            type: string
+            label: Product Name
+
+      - name: product_category
+        description: Product category (denormalized from dim_products)
+        meta:
+          dimension:
+            type: string
+            label: Product Category
+
+      - name: product_price
+        description: Product price (snapshot from order time)
+        meta:
+          dimension:
+            type: number
+            label: Product Price
+            format: "£#,##0.00"
+            hidden: false
+
+      # Audit columns
+      - name: dbt_created_at
+        description: dbt model creation timestamp
+        meta:
+          dimension:
+            type: date
+            label: dBT Created At
+            hidden: true
+
+      - name: dbt_updated_at
+        description: dbt model update timestamp
+        meta:
+          dimension:
+            type: date
+            label: dBT Updated At
+            hidden: true
+
+  # ===========================================================================
+  # DIMENSION TABLE: Customers
+  # ===========================================================================
+  - name: dim_customers
+    description: |
+      Customer dimension: One row per unique customer.
+      
+      Attributes:
+      - Customer profile (name, email)
+      - Geography (country)
+      - Lifecycle (signup_date)
+      
+      Used for customer segmentation, cohort analysis, and drill-down in Lightdash.
+
+    meta:
+      label: Customers
+      lightdash:
+        description: Customer profile dimension
+
+    columns:
+      - name: customer_id
+        description: Unique customer identifier (primary key)
+        data_tests:
+          - unique
+          - not_null
+        meta:
+          dimension:
+            type: string
+            label: Customer ID
+            primary_key: true
+
+      - name: customer_name
+        description: Full name of customer
+        meta:
+          dimension:
+            type: string
+            label: Name
+
+      - name: email
+        description: Customer email address
+        meta:
+          dimension:
+            type: string
+            label: Email
+
+      - name: country
+        description: Country of residence
+        meta:
+          dimension:
+            type: string
+            label: Country
+
+      - name: signup_date
+        description: Date customer created account
+        meta:
+          dimension:
+            type: date
+            label: Signup Date
+            time_intervals: ['MONTH', 'QUARTER', 'YEAR']
+
+  # ===========================================================================
+  # DIMENSION TABLE: Products
+  # ===========================================================================
+  - name: dim_products
+    description: |
+      Product dimension: One row per unique product.
+      
+      Attributes:
+      - Product name and category
+      - Pricing
+      - Metadata (created_date)
+      
+      Used for product performance analysis and category drill-down.
+
+    meta:
+      label: Products
+      lightdash:
+        description: Product catalog dimension
+
+    columns:
+      - name: product_id
+        description: Unique product identifier (primary key)
+        data_tests:
+          - unique
+          - not_null
+        meta:
+          dimension:
+            type: string
+            label: Product ID
+            primary_key: true
+
+      - name: product_name
+        description: Name of product
+        meta:
+          dimension:
+            type: string
+            label: Name
+
+      - name: category
+        description: Product category (Electronics, Clothing, Home & Garden, Sports, Books)
+        meta:
+          dimension:
+            type: string
+            label: Category
+
+      - name: price
+        description: Product price in GBP
+        meta:
+          dimension:
+            type: number
+            label: Price
+            format: "£#,##0.00"
+          metrics:
+            avg_product_price:
+              type: average
+              label: Avg Product Price
+              round: 2
+              format: "£#,##0.00"
+            price_range:
+              type: max
+              label: Max Product Price
+              format: "£#,##0.00"
+
+      - name: created_date
+        description: Date product was added to catalog
+        meta:
+          dimension:
+            type: date
+            label: Created Date
+            hidden: true

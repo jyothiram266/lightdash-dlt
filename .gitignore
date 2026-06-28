@@ -1,0 +1,122 @@
+# ============================================================================
+# Git Ignore: Webinar Demo
+# ============================================================================
+# Never commit secrets, build artifacts, or environment files
+
+# 🔐 SECRETS & CREDENTIALS (CRITICAL!)
+.env
+.env.local
+.env*.local
+*.secrets.toml
+~/.dbt/profiles.yml
+profiles.yml
+secrets.yml
+.aws/
+.gcp/
+.azure/
+
+# dbt artifacts & dependencies
+target/
+dbt_packages/
+.dbt/
+dbt_project/target/
+dbt_project/dbt_packages/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# dlt state (pipeline execution state)
+.dlt/state/
+.dlt/logs/
+
+# MotherDuck
+motherduck.duckdb
+*.duckdb
+*.duckdb.wal
+
+# Test coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Temp files
+*.tmp
+*.temp
+*temp
+*backup
+*.bak
+
+# Analytics (for dltHub)
+dlt_analytics/
+
+# Project-specific
+webinar_demo.duckdb  # Local test database
+*.csv.gz
+*.csv.zip
+
+# Ignore everything in .dlt except sources and config
+.dlt/*
+!.dlt/.gitkeep
+!.dlt/config.toml

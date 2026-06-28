@@ -1,0 +1,47 @@
+version: 2
+
+sources:
+  - name: raw
+    description: |
+      Raw e-commerce data loaded by dlt pipeline.
+      
+      Schema: retail_analytics.raw
+      Write frequency: Daily / On-demand
+      
+      This layer contains tables directly from the ingestion:
+      - customers: Raw customer profile data
+      - products: Raw product catalog
+      - orders: Raw order transactions
+      
+      Staging models (stg_*) clean and standardize these tables.
+
+    database: retail_analytics
+    schema: raw
+    
+    tables:
+      - name: customers
+        description: |
+          Raw customer table.
+          Contains: id, name, email, country, signup_date.
+          
+          Primary key: id
+          Rows: ~50
+
+      - name: products
+        description: |
+          Raw product table.
+          Contains: id, name, category, price, created_date.
+          
+          Primary key: id
+          Rows: ~20
+
+      - name: orders
+        description: |
+          Raw order table.
+          Contains: id, customer_id, product_id, quantity, order_date, status.
+          
+          Primary key: id
+          Foreign keys:
+            - customer_id → customers.id
+            - product_id → products.id
+          Rows: ~200
