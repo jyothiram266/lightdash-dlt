@@ -131,7 +131,7 @@ def ecommerce_source():
 # MAIN PIPELINE
 # =============================================================================
 
-def run_pipeline():
+def load_sample_shop():
     """
     Main pipeline entry point.
     
@@ -180,28 +180,49 @@ def run_pipeline():
     )
     
     # Print summary
-    print("\n✅ Pipeline completed!")
+    print("\n✅ Ingestion completed!")
     print(f"\n{load_info}")
+    
+    # Run dbt transformations programmatically
+    print("\n🚀 Running dbt transformations programmatically...")
+    try:
+        # Point to the dbt project folder
+        dbt_project_path = os.path.join(os.path.dirname(__file__), "dbt_project")
+        
+        # Initialize the dbt package runner
+        # Note: dlt automatically passes the pipeline's MotherDuck credentials to dbt
+        dbt = dlt.dbt.package(pipeline, dbt_project_path)
+        
+        # Run the transformations
+        print("🔨 Building staging and marts models...")
+        run_info = dbt.run()
+        
+        # Print results
+        print("\n✅ dbt transformations completed successfully!")
+        for model in run_info:
+            print(f"  - Model: {model.model_name:<15} | Status: {model.status:<10} | Time: {model.time:.2f}s")
+            
+        # Run dbt tests programmatically
+        print("\n🧪 Running dbt tests...")
+        test_info = dbt.test()
+        print("✅ dbt tests completed successfully!")
+        
+    except Exception as e:
+        print(f"\n❌ Error running dbt transformations: {e}")
     
     print("\n" + "="*80)
     print("NEXT STEPS")
     print("="*80)
     print("""
-1. ✅ Raw data loaded to MotherDuck (retail_analytics.raw schema)
+1. ✅ Ingestion & dbt transformations completed on MotherDuck!
 
-2. Run dbt transformations:
-   cd dbt_project
-   dbt deps
-   dbt run
-   dbt test
-
-3. Connect to Lightdash:
+2. Connect to Lightdash:
    - Database: retail_analytics
    - Schema: transformed
    - Adapter: DuckDB / MotherDuck
    - Auth: MOTHERDUCK_TOKEN env var
 
-4. Build live dashboards in Lightdash:
+3. Build live dashboards in Lightdash:
    - Revenue by Month
    - Orders by Status
    - Revenue by Product Category
@@ -211,5 +232,9 @@ def run_pipeline():
     print("="*80 + "\n")
 
 
+def run_pipeline():
+    load_sample_shop()
+
+
 if __name__ == "__main__":
-    run_pipeline()
+    load_sample_shop()
