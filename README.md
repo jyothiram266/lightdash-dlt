@@ -68,19 +68,22 @@ Initialize the virtual environment and install all packages:
 uv pip install -r requirements.txt
 ```
 
-### 3. Run Ingestion
-Execute the ingestion script to generate mock sales records and load them to MotherDuck:
+### 3. Run Ingestion & Transformations (Programmatic ELT)
+Execute the single script to load mock sales records into MotherDuck, automatically trigger the dbt staging/marts builds, and run data quality tests:
 ```bash
 uv run --env-file .env python pipeline.py
 ```
 
-### 4. Run Transformations
-Build and test the dimensional models in MotherDuck:
+*Note: The script uses the `dlt` dbt runner under the hood, sharing MotherDuck credentials programmatically so you don't need a manually configured `profiles.yml` file locally.*
+
+### 4. Manual Transformation Steps (Optional)
+If you ever want to run or debug dbt transformations manually:
 ```bash
 cd dbt_project
-uv run --env-file .env dbt deps
-uv run --env-file .env dbt run
-uv run --env-file .env dbt test
+# Setup local profiles.yml first (copy from profiles_motherduck.yml)
+uv run --env-file ../.env dbt deps
+uv run --env-file ../.env dbt run
+uv run --env-file ../.env dbt test
 ```
 
 ---
