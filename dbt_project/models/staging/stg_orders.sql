@@ -12,7 +12,7 @@ select
     customer_id,
     product_id,
     quantity,
-    order_date,
+    cast(order_date as date) as order_date,
     status,
     _dlt_load_id,
     current_timestamp as dbt_created_at

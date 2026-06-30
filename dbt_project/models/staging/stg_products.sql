@@ -11,7 +11,7 @@ select
     name,
     category,
     price,
-    created_date,
+    cast(created_date as date) as created_date,
     _dlt_load_id,
     current_timestamp as dbt_created_at
 from {{ source('raw', 'products') }}

@@ -11,7 +11,7 @@ select
     name,
     email,
     country,
-    signup_date,
+    cast(signup_date as date) as signup_date,
     _dlt_load_id,
     current_timestamp as dbt_created_at
 from {{ source('raw', 'customers') }}

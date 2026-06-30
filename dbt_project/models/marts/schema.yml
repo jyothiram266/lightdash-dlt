@@ -41,6 +41,11 @@ models:
             type: string
             label: Order ID
             primary_key: true
+          metrics:
+            total_orders:
+              type: count
+              label: Total Orders
+              description: "Total number of orders"
 
       # Dimension: Order Date (Time interval dimension)
       - name: order_date
@@ -136,10 +141,6 @@ models:
             type: string
             label: Customer ID
           metrics:
-            total_orders:
-              type: count_distinct
-              label: Total Orders
-              description: "Distinct count of unique orders"
             distinct_customers:
               type: count_distinct
               label: Distinct Customers
@@ -213,7 +214,7 @@ models:
         description: dbt model creation timestamp
         meta:
           dimension:
-            type: date
+            type: timestamp
             label: dBT Created At
             hidden: true
 
@@ -221,7 +222,7 @@ models:
         description: dbt model update timestamp
         meta:
           dimension:
-            type: date
+            type: timestamp
             label: dBT Updated At
             hidden: true
 

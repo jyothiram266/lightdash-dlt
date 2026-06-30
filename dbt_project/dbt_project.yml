@@ -44,9 +44,9 @@ models:
 #   project_type: dbt_local
 
 # ============================================================================
-# NOTES FOR WEBINAR SETUP
+# SETUP NOTES
 # ============================================================================
-# 1. Profile "webinar_demo" must be configured in ~/.dbt/profiles.yml
+# 1. Profile "retail_analytics" must be configured in profiles.yml
 #    Profiles connect dbt to MotherDuck warehouse
 #
 # 2. All models use materialized: table (not view)
@@ -56,7 +56,7 @@ models:
 #    Raw dlt tables stay in "raw" schema
 #
 # 4. After first dbt run, models will appear in:
-#    - MotherDuck: webinar_demo.transformed.fact_orders, dim_customers, etc.
+#    - MotherDuck: retail_analytics.transformed.fact_orders, dim_customers, etc.
 #
 # 5. For Lightdash connection in Cloud:
 #    - Use dbt Cloud integration (recommended)

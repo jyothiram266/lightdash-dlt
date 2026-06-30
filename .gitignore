@@ -120,3 +120,4 @@ webinar_demo.duckdb  # Local test database
 .dlt/*
 !.dlt/.gitkeep
 !.dlt/config.toml
+.user.yml
